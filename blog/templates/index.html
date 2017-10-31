@@ -1,16 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block body %}
 
-<form method = "post">
-    <button type = "submit"> click me </button>
-</form>
+<h2>Home</h2>
+  {% if session.username %}
+    <h3>Share New Post</h3>
+    <form action="{{ url_for('add_post') }}" method="post">
+        <dl>
+            <dt>Title:</dt>
+            <dd><input type="text" size="30" name="title"></dd>
+            <dt>Tags (separated by commas):</dt>
+            <dd><input type="text" size="30" name="tags"></dd>
+            <dt>Text:</dt>
+            <dd><textarea name="text" rows="5" cols="40"></textarea></dd>
+        </dl>
+        <input type="submit" value="Share">
+    </form>
+  {% endif %}
 
-{{message}}
+<br>
 
-</body>
-</html>
+<h3>Today's Recent Posts</h3>
+{% include "display_posts.html" %}
+
+{% endblock %}
