@@ -1,5 +1,5 @@
 from flask import Flask, request, session, redirect, url_for, render_template, flash
-from .models import User
+from .models import User, todays_recent_posts
 
 
 app = Flask(__name__)
@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    posts = todays_recent_posts(5)
+    return render_template("index.html",posts=posts)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -62,14 +63,35 @@ def add_post():
 
 @app.route("/like_post/<post_id>")
 def like_post(post_id):
-    return "TODO"
+    username = session.get("username")
+
+    if not username:
+        return redirect(url_for("login"))
+
+    user = User(username)
+    user.like_post(post_id)
+    flash("Liked post.")
+    return redirect(request.referrer)
 
 
 @app.route("/profile/<username>")
 def profile(username):
-    return "TODO"
+    user1 = User(session.get("username"))
+    user2 = User(username)
+    posts = user2.recent_posts(5)
+
+    similar = []
+    common = {}
+
+    if user1.username == user2.username:
+        similar = user1.similar_users(3)
+    else:
+        common = user1.commonality_of_user(user2)
+    return render_template("profile.html",username=username,posts=posts)
 
 
 @app.route("/logout")
 def logout():
-    return "TODO"
+    session.pop("username")
+    flash("You logged out dude!")
+    return redirect(url_for("index"))
